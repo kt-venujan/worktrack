@@ -1,6 +1,5 @@
-# Apptimate Work Tracker — Google Sheets Edition
+# Work Tracker — Google Sheets Edition
 
-# WorkTrack
 
 **A Web-Based Task and Change Request Management System**
 
