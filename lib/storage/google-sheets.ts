@@ -23,6 +23,16 @@ function api() {
 
 const quote = (name: string) => "'" + name.replace(/'/g, "''") + "'";
 
+function getCurrentTimestamp(): string {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, '0');
+  const d = String(now.getDate()).padStart(2, '0');
+  const hr = String(now.getHours()).padStart(2, '0');
+  const min = String(now.getMinutes()).padStart(2, '0');
+  return `${y}-${m}-${d} ${hr}:${min}`;
+}
+
 const values = (t: TaskInput) => [
   t.change,
   t.type,
@@ -31,7 +41,8 @@ const values = (t: TaskInput) => [
   t.status,
   toSheetDate(t.deliverDate),
   toSheetDate(t.dueDate),
-  t.assignee
+  t.assignee,
+  t.lastModified || getCurrentTimestamp()
 ].map((x) => String(x ?? ''));
 
 async function metadata() {
@@ -55,7 +66,7 @@ async function valid(client: string) {
   const s = api();
   const r = await s.spreadsheets.values.get({
     spreadsheetId: spreadsheetId(),
-    range: `${quote(client)}!A1:H1`
+    range: `${quote(client)}!A1:I1`
   });
   const h = (r.data.values?.[0] || []).map((v) => String(v).trim().toLowerCase());
   if (!h.includes('changes') && !h.includes('change')) throw Error('Not a task worksheet');
@@ -64,7 +75,7 @@ async function valid(client: string) {
 
 async function ensureHeaders(client: string, h: string[]) {
   const s = api();
-  const missing = [6, 7].filter((i) => !h[i]);
+  const missing = [6, 7, 8].filter((i) => !h[i]);
   if (missing.length) {
     await s.spreadsheets.values.batchUpdate({
       spreadsheetId: spreadsheetId(),
@@ -86,7 +97,7 @@ export class GoogleSheetsStorage implements TaskStorage {
     if (!names.length) return [];
     const r = await s.spreadsheets.values.batchGet({
       spreadsheetId: spreadsheetId(),
-      ranges: names.map((n) => `${quote(n)}!A1:H`),
+      ranges: names.map((n) => `${quote(n)}!A1:I`),
       valueRenderOption: 'FORMATTED_VALUE'
     });
     return names.map((name, i) => ({
@@ -122,14 +133,14 @@ export class GoogleSheetsStorage implements TaskStorage {
                     startRowIndex: row - 2,
                     endRowIndex: row - 1,
                     startColumnIndex: 0,
-                    endColumnIndex: 8
+                    endColumnIndex: 9
                   },
                   destination: {
                     sheetId,
                     startRowIndex: row - 1,
                     endRowIndex: row,
                     startColumnIndex: 0,
-                    endColumnIndex: 8
+                    endColumnIndex: 9
                   },
                   pasteType: 'PASTE_FORMAT'
                 }
@@ -141,14 +152,14 @@ export class GoogleSheetsStorage implements TaskStorage {
                     startRowIndex: row - 2,
                     endRowIndex: row - 1,
                     startColumnIndex: 0,
-                    endColumnIndex: 8
+                    endColumnIndex: 9
                   },
                   destination: {
                     sheetId,
                     startRowIndex: row - 1,
                     endRowIndex: row,
                     startColumnIndex: 0,
-                    endColumnIndex: 8
+                    endColumnIndex: 9
                   },
                   pasteType: 'PASTE_DATA_VALIDATION'
                 }
@@ -163,7 +174,7 @@ export class GoogleSheetsStorage implements TaskStorage {
 
     await s.spreadsheets.values.update({
       spreadsheetId: spreadsheetId(),
-      range: `${quote(client)}!A${row}:H${row}`,
+      range: `${quote(client)}!A${row}:I${row}`,
       valueInputOption: 'USER_ENTERED',
       requestBody: { values: [values(task)] }
     });
@@ -182,9 +193,9 @@ export class GoogleSheetsStorage implements TaskStorage {
     if (!existing.data.values?.[0]?.[0]) throw Error('Task no longer exists at this row; refresh');
     await s.spreadsheets.values.update({
       spreadsheetId: spreadsheetId(),
-      range: `${quote(client)}!A${row}:H${row}`,
+      range: `${quote(client)}!A${row}:I${row}`,
       valueInputOption: 'USER_ENTERED',
-      requestBody: { values: [values(task)] }
+      requestBody: { values: [values({ ...task, lastModified: getCurrentTimestamp() })] }
     });
   }
 

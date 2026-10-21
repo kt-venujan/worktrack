@@ -36,11 +36,8 @@ function Gate({ children }: { children: ReactNode }) {
     return (
       <div className="authLoadingScreen">
         <div className="authCard">
-          <div className="brand" style={{ justifyContent: 'center', padding: '10px 0' }}>
-            <span className="brandIcon">A</span>
-            <span style={{ color: '#101c34', fontSize: '22px' }}>
-              Apptimate<small style={{ color: '#6480ab' }}>WORK TRACKER</small>
-            </span>
+          <div className="brand" style={{ justifyContent: 'center', padding: '10px 0 16px' }}>
+            <img src="/logo-color.png" alt="Apptimate" style={{ height: '38px', maxWidth: '220px', objectFit: 'contain' }} />
           </div>
           <div className="authSpinnerBox">
             <Loader2 className="spin" size={32} color="#2563eb" />
@@ -58,10 +55,7 @@ function Gate({ children }: { children: ReactNode }) {
       <div className="authScreen">
         <main className="authCard">
           <div className="brand" style={{ justifyContent: 'center', padding: '10px 0 20px' }}>
-            <span className="brandIcon">A</span>
-            <span style={{ color: '#101c34', fontSize: '24px' }}>
-              Apptimate<small style={{ color: '#6480ab' }}>WORK TRACKER</small>
-            </span>
+            <img src="/logo-color.png" alt="Apptimate" style={{ height: '44px', maxWidth: '240px', objectFit: 'contain' }} />
           </div>
           <h1 style={{ fontSize: '22px', margin: '0 0 10px', color: '#17243b' }}>
             Welcome back

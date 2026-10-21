@@ -62,11 +62,33 @@ button {
 .brand {
   display: flex;
   align-items: center;
-  gap: 12px;
-  font-size: 19px;
-  font-weight: 750;
-  padding: 5px 9px 30px;
-  color: white;
+  padding: 4px 4px 24px;
+}
+
+.sidebarBrandBadge {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.sidebarBrandBadge:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.24);
+}
+
+.sidebarLogo {
+  width: 100%;
+  max-width: 190px;
+  height: 38px;
+  object-fit: contain;
+  display: block;
 }
 
 .brand small {
@@ -1460,6 +1482,674 @@ td.taskTitle {
   .analyticsGrid {
     grid-template-columns: 1fr;
   }
+}
+
+/* ==========================================================================
+   MY CALENDAR STYLES
+   ========================================================================== */
+
+.calendarSection {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.calendarHeader {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+}
+
+.calendarMonthNav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.calendarTitleGroup h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.calendarSubtext {
+  font-size: 13px;
+  color: #64748b;
+  margin-top: 3px;
+  display: block;
+}
+
+.calendarControls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btnGroup {
+  display: inline-flex;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #cbd5e1;
+}
+
+.btnGroup .btn {
+  border-radius: 0;
+  border: none;
+  border-right: 1px solid #cbd5e1;
+  padding: 7px 11px;
+}
+
+.btnGroup .btn:last-child {
+  border-right: none;
+}
+
+.calendarToolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 14px;
+}
+
+.calendarFilters {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.calendarSelect {
+  padding: 7px 12px;
+  font-size: 13px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #1e293b;
+  font-weight: 500;
+  outline: none;
+  cursor: pointer;
+}
+
+.filterPills {
+  display: inline-flex;
+  background: #f1f5f9;
+  padding: 3px;
+  border-radius: 8px;
+  gap: 3px;
+}
+
+.filterPill {
+  border: none;
+  background: transparent;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #64748b;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.filterPill.active {
+  background: #ffffff;
+  color: #0f172a;
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.calendarMiniStats {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.miniStatCard {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.miniStatCard.alert {
+  background: #fffbeb;
+  border-color: #fde68a;
+}
+
+.miniStatCard.overdue {
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+.miniStatCard.done {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.miniStatLabel {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #64748b;
+}
+
+.miniStatValue {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.miniStatValue.alert {
+  color: #d97706;
+}
+
+.miniStatValue.red {
+  color: #ef4444;
+}
+
+.miniStatValue.green {
+  color: #10b981;
+}
+
+/* Calendar Main Layout: Grid on left/center, Inspector on right */
+.calendarMainLayout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 20px;
+  align-items: start;
+}
+
+.calendarGridContainer {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+}
+
+.calendarWeekdaysRow {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.calendarWeekdayCell {
+  padding: 10px 8px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.calendarWeekdayCell.weekend {
+  color: #94a3b8;
+}
+
+.calendarMonthGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  background: #cbd5e1;
+  gap: 1px;
+}
+
+.calendarDayCell {
+  background: #ffffff;
+  min-height: 104px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.calendarDayCell:hover {
+  background: #f8fafc;
+}
+
+.calendarDayCell.otherMonth {
+  background: #fafafa;
+  opacity: 0.55;
+}
+
+.calendarDayCell.isSelected {
+  background: #f0f7ff;
+  outline: 2px solid #2563eb;
+  outline-offset: -2px;
+  z-index: 2;
+}
+
+.calendarDayCell.isToday {
+  background: #fafcff;
+}
+
+.calendarDayHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.dayNumber {
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.dayNumber.todayBadge {
+  background: #2563eb;
+  color: #ffffff;
+  font-weight: 700;
+  box-shadow: 0 2px 5px rgba(37, 99, 235, 0.4);
+}
+
+.calendarQuickAddBtn {
+  opacity: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #2563eb;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: opacity 0.15s ease, background 0.15s ease;
+  padding: 0;
+}
+
+.calendarDayCell:hover .calendarQuickAddBtn {
+  opacity: 1;
+}
+
+.calendarQuickAddBtn:hover {
+  background: #2563eb;
+  color: #ffffff;
+  border-color: #2563eb;
+}
+
+.calendarDayIndicators {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  position: absolute;
+  top: 10px;
+  right: 28px;
+}
+
+.cellDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.cellDot.overdue {
+  background: #ef4444;
+  box-shadow: 0 0 4px rgba(239, 68, 68, 0.5);
+}
+
+.cellDot.pending {
+  background: #f59e0b;
+}
+
+.cellDot.done {
+  background: #10b981;
+}
+
+.calendarTaskList {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: 4px;
+  flex: 1;
+}
+
+.calendarTaskChip {
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10.5px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.calendarTaskChip:hover {
+  transform: scale(1.02);
+}
+
+.calendarTaskChip.pending {
+  background: #fef3c7;
+  color: #92400e;
+  border-left: 2px solid #f59e0b;
+}
+
+.calendarTaskChip.overdue {
+  background: #fee2e2;
+  color: #991b1b;
+  border-left: 2px solid #ef4444;
+}
+
+.calendarTaskChip.done {
+  background: #dcfce7;
+  color: #166534;
+  border-left: 2px solid #10b981;
+  text-decoration: line-through;
+  opacity: 0.8;
+}
+
+.chipClient {
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 9px;
+  opacity: 0.85;
+}
+
+.chipTitle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.calendarMoreBadge {
+  font-size: 10px;
+  font-weight: 600;
+  color: #64748b;
+  padding: 1px 4px;
+  border-radius: 3px;
+  align-self: flex-start;
+  margin-top: 2px;
+}
+
+/* Day Inspector Panel */
+.calendarDayInspector {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+  position: sticky;
+  top: 20px;
+}
+
+.inspectorHead {
+  padding: 18px 20px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.inspectorDateLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #2563eb;
+}
+
+.inspectorHead h3 {
+  margin: 4px 0 2px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.inspectorSubtext {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.btnBlock {
+  width: 100%;
+  justify-content: center;
+  padding: 10px 16px;
+  font-weight: 600;
+}
+
+.lockNote {
+  font-size: 11px;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: #f8fafc;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+}
+
+.lockNote strong {
+  color: #0f172a;
+}
+
+.inspectorBody {
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: calc(100vh - 340px);
+  overflow-y: auto;
+}
+
+.inspectorSectionTitle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #64748b;
+}
+
+.inspectorEmpty {
+  text-align: center;
+  padding: 28px 12px;
+  color: #64748b;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.inspectorEmpty h4 {
+  margin: 6px 0 2px;
+  font-size: 15px;
+  color: #1e293b;
+}
+
+.inspectorEmpty p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.4;
+  color: #64748b;
+}
+
+.inspectorTaskList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.inspectorTaskCard {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: #ffffff;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.inspectorTaskCard:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.inspectorTaskCard.isOverdue {
+  border-left: 3px solid #ef4444;
+  background: #fffafa;
+}
+
+.inspectorTaskCard.isPending {
+  border-left: 3px solid #f59e0b;
+}
+
+.inspectorTaskCard.isDone {
+  border-left: 3px solid #10b981;
+  opacity: 0.85;
+}
+
+.cardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.cardMetaGroup {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.cardTitle {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+  line-height: 1.35;
+}
+
+.cardDates {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 12px;
+  color: #475569;
+}
+
+.dateItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.dateItem.muted {
+  color: #94a3b8;
+}
+
+.dateItem.assignee {
+  color: #2563eb;
+  font-weight: 500;
+}
+
+.cardActions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+
+/* Locked Date Styles in Modal */
+.dateLockedBanner {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1e40af;
+  border-radius: 8px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  grid-column: 1 / -1;
+  line-height: 1.4;
+}
+
+.lockedTag {
+  background: #e0e7ff;
+  color: #3730a3;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 6px;
+}
+
+.inputLocked {
+  background: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  color: #475569 !important;
+  cursor: not-allowed !important;
+}
+
+.navBadge.alert {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+@media (max-width: 1024px) {
+  .calendarMainLayout {
+    grid-template-columns: 1fr;
+  }
+  .calendarDayInspector {
+    position: static;
+  }
+}
+
+.lastUpdatedCell {
+  font-size: 12px;
+  color: #64748b;
+  white-space: nowrap;
+}
+
+.updatedBadge {
+  background: #f1f5f9;
+  color: #334155;
+  padding: 3px 7px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 500;
+  display: inline-block;
+  border: 1px solid #e2e8f0;
 }
 
 

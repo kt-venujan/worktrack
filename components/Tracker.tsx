@@ -7,7 +7,8 @@ import {
   isDone,
   isOverdue,
   formatDisplayDate,
-  normalizeDate
+  normalizeDate,
+  formatDateTime
 } from '../lib/model';
 import {
   LayoutDashboard,
@@ -25,9 +26,12 @@ import {
   FileEdit,
   Trash2,
   Layers,
-  ArrowRight
+  ArrowRight,
+  Calendar as CalendarIcon,
+  Lock
 } from 'lucide-react';
 import AnalyticsCharts from './AnalyticsCharts';
+import MyCalendar from './MyCalendar';
 
 const empty = {
   change: '',
@@ -40,7 +44,7 @@ const empty = {
   assignee: ''
 };
 
-type Edit = typeof empty & { client: string; row?: number };
+type Edit = typeof empty & { client: string; row?: number; lockDate?: boolean };
 
 type ActivityLog = {
   id: string;
@@ -133,7 +137,7 @@ export default function Tracker({ initialClient }: { initialClient?: string }) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [clients, setClients] = useState<string[]>([]);
   const [selected, setSelected] = useState(initialClient || 'All clients');
-  const [view, setView] = useState<'dashboard' | 'tasks' | 'clients' | 'logs'>('dashboard');
+  const [view, setView] = useState<'dashboard' | 'tasks' | 'calendar' | 'clients' | 'logs'>('dashboard');
   const [overviewTab, setOverviewTab] = useState<'recent' | 'priority'>('recent');
   const [showAnalytics, setShowAnalytics] = useState(true);
   const [logsTab, setLogsTab] = useState<'actions' | 'sheetChanges'>('actions');
@@ -265,16 +269,22 @@ export default function Tracker({ initialClient }: { initialClient?: string }) {
   const overdue = tasks.filter(isOverdue);
   const completed = tasks.filter((t) => isDone(t.status));
 
-  // Recent works: newest givenDate first, then latest row
+  // Recent works: newest lastModified first, then newest givenDate, then latest row
   const recentWorks = useMemo(() => {
     return [...tasks]
       .sort((a, b) => {
+        const ma = a.lastModified?.trim() || '';
+        const mb = b.lastModified?.trim() || '';
+        if (ma && mb && ma !== mb) return mb.localeCompare(ma);
+        if (ma && !mb) return -1;
+        if (!ma && mb) return 1;
+
         const da = normalizeDate(a.givenDate);
         const db = normalizeDate(b.givenDate);
-        if (db !== da) return db.localeCompare(da);
+        if (db && da && db !== da) return db.localeCompare(da);
         return (b.row || 0) - (a.row || 0);
       })
-      .slice(0, 20);
+      .slice(0, 25);
   }, [tasks]);
 
   // Priority works: overdue first, then pending
@@ -352,14 +362,22 @@ export default function Tracker({ initialClient }: { initialClient?: string }) {
       client: client || (selected !== 'All clients' ? selected : clients[0] || '')
     });
 
+  const openNewForDate = (dateStr: string, client?: string) =>
+    setEditing({
+      ...empty,
+      client: client || (selected !== 'All clients' ? selected : clients[0] || ''),
+      dueDate: dateStr,
+      givenDate: dateStr,
+      lockDate: true
+    });
+
   return (
     <div className="shell">
       <aside className="sidebar">
         <div className="brand">
-          <span className="brandIcon">A</span>
-          <span>
-            Apptimate<small>WORK TRACKER</small>
-          </span>
+          <div className="sidebarBrandBadge">
+            <img src="/logo-color.png" alt="Apptimate" className="sidebarLogo" />
+          </div>
         </div>
         <div className="nav">
           <button
@@ -373,6 +391,13 @@ export default function Tracker({ initialClient }: { initialClient?: string }) {
           </button>
           <button className={view === 'tasks' ? 'active' : ''} onClick={() => setView('tasks')}>
             <ClipboardList size={18} /> All tasks
+          </button>
+          <button
+            className={view === 'calendar' ? 'active' : ''}
+            onClick={() => setView('calendar')}
+          >
+            <CalendarIcon size={18} /> My Calendar
+            {pending.length > 0 && <span className="navBadge alert">{pending.length}</span>}
           </button>
           <button className={view === 'clients' ? 'active' : ''} onClick={() => setView('clients')}>
             <BriefcaseBusiness size={18} /> Clients
@@ -398,6 +423,8 @@ export default function Tracker({ initialClient }: { initialClient?: string }) {
             <h1>
               {view === 'dashboard'
                 ? 'Overview'
+                : view === 'calendar'
+                ? 'My Calendar'
                 : view === 'clients'
                 ? 'Client Workspaces'
                 : view === 'logs'
@@ -712,6 +739,15 @@ export default function Tracker({ initialClient }: { initialClient?: string }) {
               </>
             )}
 
+            {view === 'calendar' && (
+              <MyCalendar
+                tasks={tasks}
+                clients={clients}
+                onSelectTask={(t) => setEditing({ ...t })}
+                onCreateTaskForDate={(dateStr, client) => openNewForDate(dateStr, client)}
+              />
+            )}
+
             {view === 'logs' && (
               <>
                 <div className="sectionHead">
@@ -857,6 +893,15 @@ export default function Tracker({ initialClient }: { initialClient?: string }) {
               </div>
 
               <div className="fields">
+                {editing.lockDate && (
+                  <div className="dateLockedBanner">
+                    <Lock size={15} />
+                    <span>
+                      <strong>Date locked to {formatDisplayDate(editing.dueDate)}:</strong> Task scheduled directly from calendar. Date cannot be changed.
+                    </span>
+                  </div>
+                )}
+
                 <label>
                   Client Worksheet
                   <select
@@ -937,20 +982,26 @@ export default function Tracker({ initialClient }: { initialClient?: string }) {
                 </label>
 
                 <label>
-                  Given Date
+                  Given Date {editing.lockDate && <span className="lockedTag"><Lock size={11} /> Locked</span>}
                   <input
                     type="date"
+                    disabled={editing.lockDate}
                     value={normalizeDate(editing.givenDate)}
                     onChange={(e) => setEditing({ ...editing, givenDate: e.target.value })}
+                    className={editing.lockDate ? 'inputLocked' : ''}
+                    title={editing.lockDate ? 'Date locked to calendar selection' : ''}
                   />
                 </label>
 
                 <label>
-                  Due Date
+                  Due Date (Deadline) {editing.lockDate && <span className="lockedTag"><Lock size={11} /> Locked</span>}
                   <input
                     type="date"
+                    disabled={editing.lockDate}
                     value={normalizeDate(editing.dueDate)}
                     onChange={(e) => setEditing({ ...editing, dueDate: e.target.value })}
+                    className={editing.lockDate ? 'inputLocked' : ''}
+                    title={editing.lockDate ? 'Date locked to calendar selection' : ''}
                   />
                 </label>
 
@@ -1004,6 +1055,7 @@ function TaskTable({ tasks, onEdit }: { tasks: Task[]; onEdit: (t: Task) => void
             <th>Given date</th>
             <th>Due date</th>
             <th>Assignee</th>
+            <th>Last updated</th>
             <th></th>
           </tr>
         </thead>
@@ -1034,6 +1086,15 @@ function TaskTable({ tasks, onEdit }: { tasks: Task[]; onEdit: (t: Task) => void
               <td>{formatDisplayDate(t.givenDate)}</td>
               <td className={isOverdue(t) ? 'red fontBold' : ''}>{formatDisplayDate(t.dueDate)}</td>
               <td>{t.assignee || '—'}</td>
+              <td className="lastUpdatedCell">
+                {t.lastModified ? (
+                  <span className="updatedBadge">
+                    {formatDateTime(t.lastModified)}
+                  </span>
+                ) : (
+                  <span className="muted">—</span>
+                )}
+              </td>
               <td>
                 <button className="link" onClick={() => onEdit(t)}>
                   Edit
@@ -1043,7 +1104,7 @@ function TaskTable({ tasks, onEdit }: { tasks: Task[]; onEdit: (t: Task) => void
           ))}
           {!tasks.length && (
             <tr>
-              <td colSpan={9} className="empty">
+              <td colSpan={10} className="empty">
                 No requests found.
               </td>
             </tr>

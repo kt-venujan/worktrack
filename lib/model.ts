@@ -10,6 +10,7 @@ export type Task = {
   deliverDate: string;
   dueDate: string;
   assignee: string;
+  lastModified?: string;
 };
 
 export const headers = [
@@ -20,7 +21,8 @@ export const headers = [
   'Status',
   'Deliver Date',
   'Due Date',
-  'Assignee'
+  'Assignee',
+  'Last Modified'
 ];
 
 export const clean = (v: unknown) => (v == null ? '' : String(v));
@@ -80,6 +82,20 @@ export function toSheetDate(dateStr: string): string {
   return dateStr;
 }
 
+export function formatDateTime(dateStr?: string): string {
+  if (!dateStr || !dateStr.trim()) return '—';
+  const s = dateStr.trim();
+  const m = s.match(/^(\d{4})-(\d{2})-(\d{2})(?:[T\s](\d{2}):(\d{2})(?::(\d{2}))?)?/);
+  if (m) {
+    const [, y, mon, d, hr, min] = m;
+    if (hr && min) {
+      return `${d}/${mon}/${y} ${hr}:${min}`;
+    }
+    return `${d}/${mon}/${y}`;
+  }
+  return s;
+}
+
 export function parseSheets(sheets: { name: string; values: unknown[][] }[]): Task[] {
   return sheets.flatMap((s) => {
     if (!s.values.length) return [];
@@ -93,7 +109,8 @@ export function parseSheets(sheets: { name: string; values: unknown[][] }[]): Ta
       status: col(['status']),
       deliverDate: col(['deliver date', 'delivery date', 'deliverdate']),
       dueDate: col(['due date', 'duedate']),
-      assignee: col(['assignee'])
+      assignee: col(['assignee']),
+      lastModified: col(['last modified', 'last updated', 'modified', 'updated at', 'updated', 'timestamp'])
     };
     if (ix.change < 0) return [];
     return s.values
@@ -111,7 +128,8 @@ export function parseSheets(sheets: { name: string; values: unknown[][] }[]): Ta
           status: get('status'),
           deliverDate: normalizeDate(ix.deliverDate < 0 ? '' : r[ix.deliverDate]),
           dueDate: normalizeDate(ix.dueDate < 0 ? '' : r[ix.dueDate]),
-          assignee: get('assignee')
+          assignee: get('assignee'),
+          lastModified: get('lastModified')
         };
       })
       .filter((x) => x.change.trim());
