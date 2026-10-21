@@ -1,0 +1,1 @@
+import Tracker from '../../../components/Tracker';export default async function Page({params}:{params:Promise<{client:string}>}){const {client}=await params;return <Tracker initialClient={decodeURIComponent(client)}/>}

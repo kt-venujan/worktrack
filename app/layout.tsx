@@ -1,0 +1,1 @@
+import './style.css';import type {ReactNode} from 'react';import AuthGate from '../components/AuthGate';export const metadata={title:'Apptimate Work Tracker',description:'Google Sheets powered client work tracking'};export default function Layout({children}:{children:ReactNode}){return <html lang="en"><body><AuthGate>{children}</AuthGate></body></html>}
