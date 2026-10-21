@@ -1,31 +1,172 @@
 # Apptimate Work Tracker — Google Sheets Edition
 
-Next.js dashboard using your existing Excel workbook **converted to a native Google Sheet**, with a separate tab for each client. No PostgreSQL, Microsoft Entra, or ExcelJS required.
+# WorkTrack
 
-## Setup
+**A Web-Based Task and Change Request Management System**
 
-1. In Google Drive, upload `Apptimate Changes.xlsx`. Open it with Google Sheets, then choose **File → Save as Google Sheets**. Confirm the new file is a Google Sheet, not an `.xlsx` file. Keep the original as a backup. The included source workbook is in `data/` for reference only; the app does not use it at runtime.
-2. In [Google Cloud Console](https://console.cloud.google.com/), create a project and enable **Google Sheets API**.
-3. Under **APIs & Services → Credentials**, create a **Service Account** and a JSON key. Share the converted Google Sheet with the service account's `client_email` as **Editor**. Store its `private_key` only in `.env.local` or secure server environment variables; never commit the JSON key.
-4. Configure the Google Auth Platform OAuth consent screen (External for personal Gmail; add yourself as a test user if in Testing). Create an **OAuth client ID** of type **Web application**. Add `http://localhost:3000/api/auth/callback/google` as an **authorized redirect URI**. Add `http://localhost:3000` as an authorized JavaScript origin.
-5. Copy `.env.example` to `.env.local`, then fill all fields. `GOOGLE_SHEET_ID` is the segment after `/spreadsheets/d/` in your Google Sheets URL. Set `ALLOWED_EMAILS` to the Gmail addresses permitted to sign in. Generate `NEXTAUTH_SECRET` with `openssl rand -base64 32` or another cryptographically secure generator.
-6. Run `npm install`, then `npm run dev`. Open http://localhost:3000 and sign in with an allowed Google account.
+WorkTrack is a lightweight task management application developed using **Next.js, TypeScript, and Google Sheets API**. It provides a centralized interface for managing client requests, monitoring task progress, and tracking delivery deadlines.
 
-## Features
+The application transforms traditional spreadsheet-based workflows into a structured web-based management system while retaining Google Sheets as its primary data source.
 
-- Dashboard: total, pending, completed, overdue; overdue only works for tasks with a **Due Date**.
-- Clients: one workspace per worksheet; blank/non-task worksheets ignored.
-- Tasks: create, edit, delete (with confirmation), search, filter, assignee, status, due dates.
-- API routes require authenticated, allowlisted Google sign-in; service account credentials never reach the browser.
-- Existing worksheet names and columns A–F are preserved. Columns G and H become **Due Date** and **Assignee** on first edit or new task in each worksheet.
-- Handles legacy `Type`/`Types`, `Deliver Date`/`Delivery Date`, and whitespace in header labels.
+## Overview
 
-## Notes and limitations
+WorkTrack is designed to simplify the administration of client change requests and operational tasks. It enables authorized users to manage multiple clients, maintain task records, monitor outstanding work, and update progress through a unified dashboard.
 
-- Google Sheets API is **not a relational database**. Concurrent edits and manual row insertions/deletions can change row numbers. Refresh before editing; avoid simultaneous structural edits. For heavy team usage, add immutable task IDs and optimistic concurrency checks before production.
-- Delete removes the entire row in the selected worksheet; use a backup before testing destructive actions.
-- Only spreadsheet columns A–H are edited. Google Sheets formulas, styles, and other columns are otherwise retained; deletions shift entire rows.
-- Google API quotas apply. OAuth consent-screen verification may be required for wider public use; a small internal/test app is simpler.
-- The app requires internet connectivity and secure hosting to be accessible online. For deployment, set `NEXTAUTH_URL` to the production HTTPS URL and register its OAuth callback URI. Keep all credentials server-side.
-- `lib/storage/types.ts` defines the storage interface. A database adapter can be added later without rewriting UI.
-- The initial workbook contains an unusual first header in `Global Vision`; review that worksheet manually because it is not recognized as a standard task sheet.
+By integrating with Google Sheets API, the application supports spreadsheet-based data management without requiring a dedicated relational database.
+
+## Key Features
+
+- **Centralized Dashboard:** Overview of total, pending, completed, and overdue tasks.
+- **Client Management:** Organize and manage requests across multiple client worksheets.
+- **Task Management:** Create, view, update, and delete task records.
+- **Deadline Monitoring:** Track delivery deadlines and identify overdue tasks.
+- **Status Tracking:** Monitor task progress throughout its lifecycle.
+- **Search and Filtering:** Locate requests based on client, status, and keywords.
+- **Google Sheets Integration:** Synchronize task records through Google Sheets API.
+- **Authentication:** Google OAuth authentication with configurable email-based access restrictions.
+- **Lightweight Architecture:** Operates without a dedicated relational database.
+
+## Technology Stack
+
+| Component | Technology |
+|---|---|
+| Frontend | Next.js, React |
+| Programming Language | TypeScript |
+| Styling | Tailwind CSS |
+| Backend | Next.js API Routes |
+| Data Storage | Google Sheets |
+| API Integration | Google Sheets API |
+| Authentication | NextAuth.js, Google OAuth |
+| Deployment | Vercel (optional) |
+
+## System Architecture
+
+```text
+                  WorkTrack
+               Web Application
+                      |
+              Authentication
+                Google OAuth
+                      |
+                Next.js API
+                      |
+             Task Management
+                      |
+              Google Sheets API
+                      |
+              Google Spreadsheet
+                      |
+          +-----------+-----------+
+          |           |           |
+       Client A    Client B    Client C
+```
+
+## Project Structure
+
+```text
+worktrack/
+├── app/
+│   ├── api/              # Backend API endpoints
+│   └── ...               # Application routes
+├── components/           # Reusable UI components
+├── lib/                  # Integrations and utilities
+├── public/               # Static assets
+├── .env.example          # Environment configuration template
+├── package.json          # Project dependencies
+└── README.md             # Project documentation
+```
+
+## Installation and Configuration
+
+### Prerequisites
+
+- Node.js and npm
+- Google Cloud project
+- Google Sheets API enabled
+- Google OAuth credentials
+- Google service account with spreadsheet access
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/YOUR_USERNAME/worktrack.git
+cd worktrack
+npm install
+```
+
+### 2. Configure Google Cloud
+
+1. Create a project in Google Cloud Console.
+2. Enable the Google Sheets API.
+3. Create a service account.
+4. Grant the service account Editor access to the required spreadsheet.
+5. Configure the Google OAuth consent screen.
+6. Create OAuth credentials for a web application.
+
+### 3. Configure Environment Variables
+
+Create a `.env.local` file in the project root:
+
+```env
+GOOGLE_OAUTH_CLIENT_ID=
+GOOGLE_OAUTH_CLIENT_SECRET=
+
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=
+
+ALLOWED_EMAILS=
+
+GOOGLE_SHEET_ID=
+GOOGLE_SERVICE_ACCOUNT_EMAIL=
+GOOGLE_PRIVATE_KEY=
+```
+
+Store credentials securely. Never commit environment files containing secrets to version control.
+
+### 4. Start the Development Server
+
+```bash
+npm run dev
+```
+
+Access the application at:
+
+`http://localhost:3000`
+
+## Task Management Workflow
+
+1. A change request or task is recorded for a client.
+2. The application retrieves the relevant records from Google Sheets.
+3. Authorized users review and update task information through the dashboard.
+4. Task status, descriptions, and deadlines can be modified.
+5. Changes are written back to the corresponding spreadsheet.
+6. Updated information becomes available when the dashboard refreshes.
+
+## Security Considerations
+
+- Google OAuth is used for user authentication.
+- Access can be restricted to approved email addresses.
+- Spreadsheet operations are performed through server-side API integration.
+- Service account credentials are stored in environment variables.
+- Sensitive configuration files must be excluded from version control.
+
+Production deployments should additionally enforce server-side authorization, input validation, and appropriate access controls.
+
+## Future Enhancements
+
+- Role-based access control
+- Task assignment and ownership
+- Priority classification
+- Automated deadline notifications
+- Activity history and audit logging
+- Advanced reporting and analytics
+- Stable task identifiers and concurrent editing protection
+
+## License
+
+This project is proprietary. All rights reserved.
+
+---
+
+**WorkTrack**  
+*Task and Change Request Management System*
